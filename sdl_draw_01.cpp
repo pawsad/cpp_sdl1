@@ -2,19 +2,15 @@
 
 namespace pp_draw_01 {
 
-    DrawContext make_context(SDL_Surface *surface, Uint32 color) {
-        DrawContext context;
-        context.surface = surface;
-        context.color = color;
-        return context;
-    }
-
     void _put8(DrawContext context, const int x1, const int y1);
     void _put16(DrawContext context, const int x1, const int y1);
     void _put24(DrawContext context, const int x1, const int y1);
     void _put32(DrawContext context, const int x1, const int y1);
     void _drawCirclePoints(DrawContext context, int sx, int sy, int dx, int dy);
     void _drawCirclePoints2(DrawContext context, int sx, int sy, int dx, int dy);
+    void ellipseSWH(DrawContext context, Sint32 xs, Sint32 ys, Sint32 rx, Sint32 ry);
+    void circleBres1(DrawContext context, int xc, int yc, int r);
+    void circleBres2(DrawContext context, int xc, int yc, int r);
 
     void put_pixel(DrawContext context, const int x1, const int y1) {
         switch (context.surface->format->BytesPerPixel) {
@@ -35,58 +31,10 @@ namespace pp_draw_01 {
     }
 
     void put_pixel(SDL_Surface *surface, const int x1, const int y1, const Uint32 color) {
-        put_pixel(make_context(surface, color), x1, y1);
-    }
-
-    void ellipse(DrawContext context, Sint32 x1, Sint32 y1, Sint32 x2, Sint32 y2)
-    {
-        ellipseSWH(context, (x1+x2)>>1, (y1+y2)>>1, (x2-x1)>>1, (y2-y1)>>1);
-    }
-
-    void ellipseSWH(DrawContext context, Sint32 xs, Sint32 ys, Sint32 rx, Sint32 ry)
-    {
-        Sint32 x = 0, y = ry;
-        Sint32 e = 0, e1, e2;
-        Sint32 rx2 = rx * rx, ry2 = ry * ry;
-        Sint32 fx = 0, fy = rx2 * ry;
-
-        while(fx <= fy)
-        {
-            put_pixel(context, xs+x, ys+y);
-            put_pixel(context, xs+x, ys-y);
-            put_pixel(context, xs-x, ys+y);
-            put_pixel(context, xs-x, ys-y);
-            e1 = e  + (fx << 1) + ry2;
-            e2 = e1 - (fy << 1) + rx2;
-            x++; fx += ry2;
-            if(e1 + e2 >= 0)
-            {
-                e = e2; y--; fy -= rx2;
-            }
-            else
-            {
-                e = e1;
-            }
-        }
-
-        while(y >= 0)
-        {
-            put_pixel(context, xs+x, ys+y);
-            put_pixel(context, xs+x, ys-y);
-            put_pixel(context, xs-x, ys+y);
-            put_pixel(context, xs-x, ys-y);
-            e1 = e  - (fy << 1) + rx2;
-            e2 = e1 + (fx << 1) + ry2;
-            y--; fy -= rx2;
-            if(e1 + e2 < 0)
-            {
-                e = e2; x++; fx += ry2;
-            }
-            else
-            {
-                e = e1;
-            }
-        }
+        DrawContext context;
+        context.surface = surface;
+        context.color = color;
+        put_pixel(context, x1, y1);
     }
 
     void line(DrawContext context, const int x1, const int y1, const int x2, const int y2)
@@ -168,6 +116,24 @@ namespace pp_draw_01 {
         }
     }
 
+    void ellipse(DrawContext context, Sint32 x1, Sint32 y1, Sint32 x2, Sint32 y2)
+    {
+        Sint32 xs = (x1 + x2) >> 1;
+        Sint32 ys = (y1 + y2) >> 1;
+        Sint32 rx = (x2 - x1) >> 1;
+        Sint32 ry = (y2 - y1) >> 1;
+        if(rx < 0) rx = -rx;
+        if(ry < 0) ry = -ry;
+        ellipseSWH(context, xs, ys, rx, ry);
+    }
+
+    void circle(DrawContext context, int x, int y, int d) {
+        if (d % 2 == 1) {
+            circleBres1(context, x, y, d / 2);
+        } else {
+            circleBres2(context, x, y, d / 2 - 1);
+        }
+    }
 
 
 
@@ -213,6 +179,52 @@ namespace pp_draw_01 {
         put(sx - dy, sy + dx + 1);
         put(sx + dy + 1, sy - dx);
         put(sx - dy, sy - dx);
+    }
+
+    void ellipseSWH(DrawContext context, Sint32 xs, Sint32 ys, Sint32 rx, Sint32 ry)
+    {
+        Sint32 x = 0, y = ry;
+        Sint32 e = 0, e1, e2;
+        Sint32 rx2 = rx * rx, ry2 = ry * ry;
+        Sint32 fx = 0, fy = rx2 * ry;
+
+        while(fx <= fy)
+        {
+            put(xs+x, ys+y);
+            put(xs+x, ys-y);
+            put(xs-x, ys+y);
+            put(xs-x, ys-y);
+            e1 = e  + (fx << 1) + ry2;
+            e2 = e1 - (fy << 1) + rx2;
+            x++; fx += ry2;
+            if(e1 + e2 >= 0)
+            {
+                e = e2; y--; fy -= rx2;
+            }
+            else
+            {
+                e = e1;
+            }
+        }
+
+        while(y >= 0)
+        {
+            put(xs+x, ys+y);
+            put(xs+x, ys-y);
+            put(xs-x, ys+y);
+            put(xs-x, ys-y);
+            e1 = e  - (fy << 1) + rx2;
+            e2 = e1 + (fx << 1) + ry2;
+            y--; fy -= rx2;
+            if(e1 + e2 < 0)
+            {
+                e = e2; x++; fx += ry2;
+            }
+            else
+            {
+                e = e1;
+            }
+        }
     }
 
     void ellipseSWH2(DrawContext context, Sint32 xs, Sint32 ys, Sint32 rx, Sint32 ry) {
@@ -365,13 +377,6 @@ namespace pp_draw_01 {
         }
     }
 
-    void circle(DrawContext context, int x, int y, int d) {
-        if (d % 2 == 1) {
-            circleBres1(context, x, y, d / 2);
-        } else {
-            circleBres2(context, x, y, d / 2 - 1);
-        }
-    }
 #undef put
 
 
