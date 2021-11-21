@@ -12,16 +12,16 @@ namespace pp_draw_01 {
         Uint32 color = 0xffffffff;
     };
 
-    void TestDraw(DrawContext context);
+    void TestDraw(DrawContext & context);
 
     // Base function to use:
     void put_pixel(SDL_Surface *surface, const int x1, const int y1, const Uint32 color);
-    void put_pixel(DrawContext context, const int x1, const int y1);
-    void line(DrawContext context, const Sint32 x1, const Sint32 y1, const Sint32 x2, const Sint32 y2);
+    void put_pixel(DrawContext & context, const int x1, const int y1);
+    void line(DrawContext & context, const Sint32 x1, const Sint32 y1, const Sint32 x2, const Sint32 y2);
 
     // Example functions to draw circe / ellipse
-    void ellipse(DrawContext context, Sint32 x1, Sint32 y1, Sint32 x2, Sint32 y2);
-    void circle(DrawContext context, int x, int y, int diameter);
+    void ellipse(DrawContext & context, Sint32 x1, Sint32 y1, Sint32 x2, Sint32 y2);
+    void circle(DrawContext & context, int x, int y, int diameter);
 
 } // namespace
 

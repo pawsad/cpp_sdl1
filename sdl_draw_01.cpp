@@ -1,18 +1,31 @@
+/*
+ *  Podczas zajęć nie jest wymagana znajomość tego pliku, znajdują się tu różne testowe implementacje
+ *  funkcji rysujących (głownie okręgi i elipsy).
+ *
+ *  Do wykonywania ćwiczeń wystarczy korzystać z funkcji których deklaracje dostępne są w pliku sdl_draw_01.h
+ *
+ *  Dla zainteresowanych pozostaje możliwość przejrzenia oraz modyfikacji zamieszczonego tu kodu.
+ *
+ *  Źródła:
+ *      https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
+ *      https://pl.wikipedia.org/wiki/Algorytm_Bresenhama
+ *
+ */
 #include "sdl_draw_01.h"
 
 namespace pp_draw_01 {
 
-    void _put8(DrawContext context, const int x1, const int y1);
-    void _put16(DrawContext context, const int x1, const int y1);
-    void _put24(DrawContext context, const int x1, const int y1);
-    void _put32(DrawContext context, const int x1, const int y1);
-    void _drawCirclePoints(DrawContext context, int sx, int sy, int dx, int dy);
-    void _drawCirclePoints2(DrawContext context, int sx, int sy, int dx, int dy);
-    void ellipseSWH(DrawContext context, Sint32 xs, Sint32 ys, Sint32 rx, Sint32 ry);
-    void circleBres1(DrawContext context, int xc, int yc, int r);
-    void circleBres2(DrawContext context, int xc, int yc, int r);
+    void _put8(DrawContext & context, const int x1, const int y1);
+    void _put16(DrawContext & context, const int x1, const int y1);
+    void _put24(DrawContext & context, const int x1, const int y1);
+    void _put32(DrawContext & context, const int x1, const int y1);
+    void _drawCirclePoints(DrawContext & context, int sx, int sy, int dx, int dy);
+    void _drawCirclePoints2(DrawContext & context, int sx, int sy, int dx, int dy);
+    void ellipseSWH(DrawContext & context, Sint32 xs, Sint32 ys, Sint32 rx, Sint32 ry);
+    void circleBres1(DrawContext & context, int xc, int yc, int r);
+    void circleBres2(DrawContext & context, int xc, int yc, int r);
 
-    void put_pixel(DrawContext context, const int x1, const int y1) {
+    void put_pixel(DrawContext & context, const int x1, const int y1) {
         switch (context.surface->format->BytesPerPixel) {
             case 1:
                 _put8(context, x1, y1);
@@ -37,7 +50,7 @@ namespace pp_draw_01 {
         put_pixel(context, x1, y1);
     }
 
-    void line(DrawContext context, const int x1, const int y1, const int x2, const int y2)
+    void line(DrawContext & context, const int x1, const int y1, const int x2, const int y2)
     {
         // zmienne pomocnicze
         int d, dx, dy, ai, bi, xi, yi;
@@ -116,7 +129,7 @@ namespace pp_draw_01 {
         }
     }
 
-    void ellipse(DrawContext context, Sint32 x1, Sint32 y1, Sint32 x2, Sint32 y2)
+    void ellipse(DrawContext & context, Sint32 x1, Sint32 y1, Sint32 x2, Sint32 y2)
     {
         Sint32 xs = (x1 + x2) >> 1;
         Sint32 ys = (y1 + y2) >> 1;
@@ -127,7 +140,7 @@ namespace pp_draw_01 {
         ellipseSWH(context, xs, ys, rx, ry);
     }
 
-    void circle(DrawContext context, int x, int y, int d) {
+    void circle(DrawContext & context, int x, int y, int d) {
         if (d % 2 == 1) {
             circleBres1(context, x, y, d / 2);
         } else {
@@ -139,15 +152,15 @@ namespace pp_draw_01 {
 
 #define put(x, y) put_pixel(context, (x), (y))
 
-    void _put8(DrawContext context, const int x1, const int y1) {
+    void _put8(DrawContext & context, const int x1, const int y1) {
         static_cast<Uint8 *>(context.surface->pixels)[context.surface->w * y1 + x1] = context.color;
     }
 
-    void _put16(DrawContext context, const int x1, const int y1) {
+    void _put16(DrawContext & context, const int x1, const int y1) {
         static_cast<Uint16 *>(context.surface->pixels)[context.surface->w * y1 + x1] = context.color;
     }
 
-    void _put24(DrawContext context, const int x1, const int y1) {
+    void _put24(DrawContext & context, const int x1, const int y1) {
         *static_cast<Uint16 *>(static_cast<void *>( static_cast<Uint8 *>(context.surface->pixels) +
                                                     (context.surface->w * y1 + x1) * 3     )) = Uint16(context.color);
         *static_cast<Uint8 * >(static_cast<void *>( static_cast<Uint8 *>(context.surface->pixels) +
@@ -155,11 +168,11 @@ namespace pp_draw_01 {
                 context.color >> 16);
     }
 
-    void _put32(DrawContext context, const int x1, const int y1) {
+    void _put32(DrawContext & context, const int x1, const int y1) {
         static_cast<Uint32 *>(context.surface->pixels)[context.surface->w * y1 + x1] = context.color;
     }
 
-    void _drawCirclePoints(DrawContext context, int sx, int sy, int dx, int dy) {
+    void _drawCirclePoints(DrawContext & context, int sx, int sy, int dx, int dy) {
         put(sx + dx, sy + dy);
         put(sx - dx, sy + dy);
         put(sx + dx, sy - dy);
@@ -170,7 +183,7 @@ namespace pp_draw_01 {
         put(sx - dy, sy - dx);
     }
 
-    void _drawCirclePoints2(DrawContext context, int sx, int sy, int dx, int dy) {
+    void _drawCirclePoints2(DrawContext & context, int sx, int sy, int dx, int dy) {
         put(sx + dx + 1, sy + dy + 1);
         put(sx - dx, sy + dy + 1);
         put(sx + dx + 1, sy - dy);
@@ -181,7 +194,7 @@ namespace pp_draw_01 {
         put(sx - dy, sy - dx);
     }
 
-    void ellipseSWH(DrawContext context, Sint32 xs, Sint32 ys, Sint32 rx, Sint32 ry)
+    void ellipseSWH(DrawContext & context, Sint32 xs, Sint32 ys, Sint32 rx, Sint32 ry)
     {
         Sint32 x = 0, y = ry;
         Sint32 e = 0, e1, e2;
@@ -227,7 +240,7 @@ namespace pp_draw_01 {
         }
     }
 
-    void ellipseSWH2(DrawContext context, Sint32 xs, Sint32 ys, Sint32 rx, Sint32 ry) {
+    void ellipseSWH2(DrawContext & context, Sint32 xs, Sint32 ys, Sint32 rx, Sint32 ry) {
         Sint32 x = 0, y = ry;
         Sint32 x1 = x + 1, y1 = y + 1;
         Sint32 e = 0, e1, e2;
@@ -275,7 +288,7 @@ namespace pp_draw_01 {
         }
     }
 
-    void ellipseSWH3(DrawContext context, Sint32 xs, Sint32 ys, Sint32 rx, Sint32 ry) {
+    void ellipseSWH3(DrawContext & context, Sint32 xs, Sint32 ys, Sint32 rx, Sint32 ry) {
         Sint32 x = 0, y = ry;
         Sint32 x0 = x + 1, y0 = y + 1;
         Sint32 x1 = x + 1, y1 = y + 1;
@@ -328,7 +341,7 @@ namespace pp_draw_01 {
         }
     }
 
-    void circleBres1(DrawContext context, int xc, int yc, int r) {
+    void circleBres1(DrawContext & context, int xc, int yc, int r) {
         if (r < 1) {
             if (r > 0) put(xc, yc);
             return;
@@ -350,7 +363,7 @@ namespace pp_draw_01 {
         }
     }
 
-    void circleBres2(DrawContext context, int sx, int sy, int r) {
+    void circleBres2(DrawContext & context, int sx, int sy, int r) {
         if (r < 1) {
             if (r > 0) {
                 put(sx + 1, sy + 1);
@@ -381,7 +394,7 @@ namespace pp_draw_01 {
 
 
 
-    void TestDraw(DrawContext context)
+    void TestDraw(DrawContext & context)
     {
         context.color = SDL_MapRGB(context.surface->format, 0x00, 0x00, 0xff);
         //ellipseSWH( 80, 100, 0, 0); // 3
