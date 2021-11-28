@@ -14,6 +14,7 @@
  */
 #include <iostream>
 #include "sdl_draw_01.h"
+#include "examples.h"
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
@@ -213,5 +214,5 @@ int Test1()
 
 int main(int argc, char ** argv)
 {
-    return Test1();
+    return rekurencja2();
 }

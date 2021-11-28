@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.10)
 
 project(cpp_sdl1 CXX)
 
-set(SOURCES sdl_draw_01.cpp)
-set(HEADERS sdl_draw_01.h)
+set(SOURCES sdl_draw_01.cpp rekurencja1.cpp rekurencja2.cpp)
+set(HEADERS sdl_draw_01.h examples.h)
 
 
 #find_package(SDL2 REQUIRED)
